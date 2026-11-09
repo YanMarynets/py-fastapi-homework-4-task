@@ -146,22 +146,8 @@ async def create_user_profile(
             detail="User already has a profile.",
         )
 
-    # 5. Validate avatar
-    allowed_content_types = {"image/jpeg", "image/png"}
 
-    if avatar.content_type not in allowed_content_types:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Invalid image format",
-        )
 
-    file_data = await avatar.read()
-
-    if len(file_data) > 1024 * 1024:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Image size exceeds 1 MB",
-        )
 
     # 6. Validate profile data
     try:
@@ -176,8 +162,9 @@ async def create_user_profile(
     except ValidationError as error:
         raise RequestValidationError(error.errors()) from error
 
-    # 7. Upload avatar to S3
+
     avatar_key = f"avatars/{user_id}_avatar.jpg"
+    file_data = await avatar.read()
 
     try:
         await s3_client.upload_file(
@@ -190,7 +177,7 @@ async def create_user_profile(
             detail="Failed to upload avatar. Please try again later.",
         ) from error
 
-    # 8. Create profile in database
+
     profile = UserProfileModel(
         user_id=user_id,
         first_name=profile_data.first_name,

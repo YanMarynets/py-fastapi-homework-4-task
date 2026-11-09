@@ -46,6 +46,12 @@ class ProfileCreateRequestSchema(ProfileBaseModel):
         validate_birth_date(value)
         return value
 
+    @field_validator("avatar")
+    @classmethod
+    def validate_avatar(cls, value: UploadFile) -> UploadFile:
+        validate_image(value)
+        return value
+
     @field_validator("info")
     @classmethod
     def validate_profile_info(cls, value: str) -> str:
