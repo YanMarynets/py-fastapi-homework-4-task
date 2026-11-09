@@ -146,10 +146,6 @@ async def create_user_profile(
             detail="User already has a profile.",
         )
 
-
-
-
-    # 6. Validate profile data
     try:
         profile_data = schemas.ProfileCreateRequestSchema(
             first_name=first_name,
@@ -161,7 +157,6 @@ async def create_user_profile(
         )
     except ValidationError as error:
         raise RequestValidationError(error.errors()) from error
-
 
     avatar_key = f"avatars/{user_id}_avatar.jpg"
     file_data = await avatar.read()
@@ -176,7 +171,6 @@ async def create_user_profile(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to upload avatar. Please try again later.",
         ) from error
-
 
     profile = UserProfileModel(
         user_id=user_id,
